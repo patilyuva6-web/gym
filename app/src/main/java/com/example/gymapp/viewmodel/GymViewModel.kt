@@ -15,6 +15,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.YearMonth
+import java.time.ZoneId
+import java.time.format.TextStyle
+import java.util.Locale
 
 data class MemberDueItem(
     val member: Member,
@@ -36,6 +41,19 @@ data class DueExpiredUiState(
 ) {
     val totalCount: Int get() = dueSoon.size + expired.size
 }
+
+data class MonthlyRevenue(
+    val yearMonth: YearMonth,
+    val monthLabel: String,
+    val totalAmount: Double
+)
+
+data class RevenueUiState(
+    val months: List<MonthlyRevenue> = emptyList(),
+    val sixMonthTotal: Double = 0.0,
+    val currentMonthTotal: Double = 0.0,
+    val previousMonthTotal: Double = 0.0
+)
 
 class GymViewModel(private val repository: MemberRepository) : ViewModel() {
 
@@ -88,6 +106,51 @@ class GymViewModel(private val repository: MemberRepository) : ViewModel() {
             initialValue = DueExpiredUiState()
         )
 
+    private val sixMonthsStartMillis: Long = YearMonth.now()
+        .minusMonths(5)
+        .atDay(1)
+        .atStartOfDay(ZoneId.systemDefault())
+        .toInstant()
+        .toEpochMilli()
+
+    val revenueUiState: StateFlow<RevenueUiState> = repository
+        .getPaymentsSince(sixMonthsStartMillis)
+        .map { payments ->
+            val zone = ZoneId.systemDefault()
+            val currentYm = YearMonth.now(zone)
+            val totalsByMonth = payments.groupBy { payment ->
+                YearMonth.from(Instant.ofEpochMilli(payment.paidAt).atZone(zone))
+            }.mapValues { (_, list) ->
+                list.sumOf { it.amount }
+            }
+
+            val monthlyList = (5L downTo 0L).map { offset ->
+                val ym = currentYm.minusMonths(offset)
+                val label = ym.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                MonthlyRevenue(
+                    yearMonth = ym,
+                    monthLabel = label,
+                    totalAmount = totalsByMonth[ym] ?: 0.0
+                )
+            }
+
+            val sixMonthTotal = monthlyList.sumOf { it.totalAmount }
+            val currentMonthTotal = monthlyList.lastOrNull()?.totalAmount ?: 0.0
+            val previousMonthTotal = monthlyList.getOrNull(monthlyList.size - 2)?.totalAmount ?: 0.0
+
+            RevenueUiState(
+                months = monthlyList,
+                sixMonthTotal = sixMonthTotal,
+                currentMonthTotal = currentMonthTotal,
+                previousMonthTotal = previousMonthTotal
+            )
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = RevenueUiState()
+        )
+
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
     }
@@ -105,6 +168,7 @@ class GymViewModel(private val repository: MemberRepository) : ViewModel() {
         joinDate: Long,
         feeAmount: Double,
         feeDueDate: Long,
+        recordInitialPayment: Boolean = false,
         onSaved: () -> Unit
     ) {
         viewModelScope.launch {
@@ -123,7 +187,7 @@ class GymViewModel(private val repository: MemberRepository) : ViewModel() {
             if (existingId != null && existingId > 0) {
                 repository.updateMember(member)
             } else {
-                repository.insertMember(member)
+                repository.insertMember(member, recordInitialPayment = recordInitialPayment)
             }
             onSaved()
         }

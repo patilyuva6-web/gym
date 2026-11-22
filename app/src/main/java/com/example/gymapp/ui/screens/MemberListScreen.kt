@@ -52,8 +52,10 @@ import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.gymapp.data.Member
 import com.example.gymapp.ui.components.MemberAvatar
+import com.example.gymapp.ui.components.RevenueChartCard
 import com.example.gymapp.util.DateUtils
 import com.example.gymapp.viewmodel.MembersUiState
+import com.example.gymapp.viewmodel.RevenueUiState
 import com.example.ui.theme.CoralFlame
 import com.example.ui.theme.SlateNavy
 import com.example.ui.theme.SlateNavyLight
@@ -67,6 +69,7 @@ import com.example.ui.theme.StatusPaidContainer
 @Composable
 fun MemberListScreen(
     uiState: MembersUiState,
+    revenueUiState: RevenueUiState,
     searchQuery: String,
     showNotificationPermissionPrompt: Boolean,
     onRequestNotificationPermission: () -> Unit,
@@ -256,22 +259,30 @@ fun MemberListScreen(
                     }
 
                     is MembersUiState.Success -> {
-                        if (uiState.filteredMembers.isEmpty()) {
-                            EmptyMembersState(
-                                isSearching = searchQuery.isNotBlank(),
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(
-                                    start = 16.dp,
-                                    end = 16.dp,
-                                    top = 4.dp,
-                                    bottom = 96.dp
-                                ),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                end = 16.dp,
+                                top = 4.dp,
+                                bottom = 96.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            item(key = "revenue_chart") {
+                                RevenueChartCard(revenueUiState = revenueUiState)
+                            }
+
+                            if (uiState.filteredMembers.isEmpty()) {
+                                item(key = "empty_members") {
+                                    EmptyMembersState(
+                                        isSearching = searchQuery.isNotBlank(),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 24.dp)
+                                    )
+                                }
+                            } else {
                                 items(
                                     items = uiState.filteredMembers,
                                     key = { it.id }

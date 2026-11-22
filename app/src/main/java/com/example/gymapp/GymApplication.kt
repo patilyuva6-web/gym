@@ -9,7 +9,9 @@ import com.example.gymapp.worker.NotificationHelper
 class GymApplication : Application() {
 
     val database: GymDatabase by lazy { GymDatabase.getInstance(this) }
-    val repository: MemberRepository by lazy { MemberRepository(database.memberDao()) }
+    val repository: MemberRepository by lazy {
+        MemberRepository(database.memberDao(), database.feePaymentDao())
+    }
 
     override fun onCreate() {
         super.onCreate()

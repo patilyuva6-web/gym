@@ -70,6 +70,7 @@ fun GymAppRoot(
     val membersUiState by viewModel.membersUiState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val dueExpiredUiState by viewModel.dueExpiredUiState.collectAsStateWithLifecycle()
+    val revenueUiState by viewModel.revenueUiState.collectAsStateWithLifecycle()
 
     var hasNotificationPermission by remember {
         mutableStateOf(
@@ -263,6 +264,7 @@ fun GymAppRoot(
                     composable<MembersRoute> {
                         MemberListScreen(
                             uiState = membersUiState,
+                            revenueUiState = revenueUiState,
                             searchQuery = searchQuery,
                             showNotificationPermissionPrompt = !hasNotificationPermission,
                             onRequestNotificationPermission = {

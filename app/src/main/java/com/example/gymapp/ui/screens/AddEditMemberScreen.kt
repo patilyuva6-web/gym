@@ -44,6 +44,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -94,6 +95,7 @@ fun AddEditMemberScreen(
         joinDate: Long,
         feeAmount: Double,
         feeDueDate: Long,
+        recordInitialPayment: Boolean,
         onSaved: () -> Unit
     ) -> Unit,
     onDeleteMember: (Member, () -> Unit) -> Unit,
@@ -122,6 +124,7 @@ fun AddEditMemberScreen(
 
     var activeDateField by remember { mutableStateOf<ActiveDateField?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var recordInitialPayment by remember { mutableStateOf(true) }
 
     // Holds temporary camera capture output file until TakePicture finishes
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
@@ -438,6 +441,35 @@ fun AddEditMemberScreen(
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
+                } else if (!isEditMode) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Record initial fee payment",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Logs first month's fee in revenue trends on joining date",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Switch(
+                            checked = recordInitialPayment,
+                            onCheckedChange = { recordInitialPayment = it },
+                            modifier = Modifier.testTag("record_initial_payment_switch")
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
 
                 // Save Button
@@ -471,6 +503,7 @@ fun AddEditMemberScreen(
                                 joinDateMillis,
                                 parsedFee,
                                 feeDueDateMillis,
+                                recordInitialPayment,
                                 onNavigateBack
                             )
                         }
