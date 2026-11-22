@@ -1,0 +1,6 @@
+{
+  "name": "GymApp",
+  "description": "Offline gym member and fee reminder manager built with Jetpack Compose, Room, Coil, and WorkManager.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

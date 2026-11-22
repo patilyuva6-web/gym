@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">GymApp</string>
+    <string name="tab_members">Members</string>
+    <string name="tab_due_expired">Due / Expired</string>
+    <string name="search_members_hint">Search members by name</string>
+    <string name="add_member">Add Member</string>
+    <string name="edit_member">Edit Member</string>
+    <string name="field_name">Full Name</string>
+    <string name="field_phone">Phone Number</string>
+    <string name="field_join_date">Joining Date</string>
+    <string name="field_fee_amount">Monthly Fee</string>
+    <string name="field_fee_due_date">Fee Due Date</string>
+    <string name="choose_from_gallery">Gallery</string>
+    <string name="take_photo">Camera</string>
+    <string name="save_member">Save Member</string>
+    <string name="mark_fee_paid">Mark fee paid (+1 month)</string>
+    <string name="mark_paid_short">Mark Paid</string>
+    <string name="delete_member">Delete Member</string>
+    <string name="delete_confirm_title">Delete member?</string>
+    <string name="delete_confirm_message">This will permanently remove %1$s from your gym roster.</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="section_due_soon">Due soon</string>
+    <string name="section_expired">Expired</string>
+    <string name="call_member">Call</string>
+    <string name="notification_channel_name">Fee Reminders</string>
+    <string name="notification_channel_desc">Daily reminders for upcoming and overdue gym membership fees</string>
+    <string name="notification_title">Fee Reminder</string>
+</resources>
